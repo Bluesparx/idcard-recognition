@@ -1,0 +1,9 @@
+Flask
+opencv-python
+Pillow
+numpy
+python-dateutil
+tensorflow
+scikit-learn
+easyocr
+flask-cors
