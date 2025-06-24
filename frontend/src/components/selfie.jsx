@@ -2,6 +2,8 @@ import React, { useRef, useState } from "react";
 import Webcam from "react-webcam";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+
+
 function Selfie() {
   const webcamRef = useRef(null);
   const fileInputRef = useRef(null); 
@@ -9,6 +11,8 @@ function Selfie() {
   const [document, setDocument] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const baseUrl = import.meta.env.VITE_API_HOST;
 
   const captureSelfie = () => {
     const imageSrc = webcamRef.current.getScreenshot();
@@ -35,7 +39,7 @@ function Selfie() {
     formData.append("document", document);
 
     try {
-      const qualityCheck = await axios.post("http://localhost:5000/check-quality", formData);
+      const qualityCheck = await axios.post(`${baseUrl}/check-quality`, formData);
       const { document_feedback, selfie_feedback } = qualityCheck.data;
 
       if ((document_feedback?.length > 0) || (selfie_feedback?.length > 0)) {
@@ -49,7 +53,7 @@ function Selfie() {
         return;
       }
       toast.success("Quality of images is good!"); 
-      const verifyResponse = await axios.post("http://localhost:5000/verify", formData);
+      const verifyResponse = await axios.post(`${baseUrl}/verify`, formData);
       const verificationResult = verifyResponse.data;
       setResult(verificationResult);
 

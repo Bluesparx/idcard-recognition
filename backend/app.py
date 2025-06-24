@@ -11,7 +11,7 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 
-CORS(app, origins=["http://localhost:5173"])
+CORS(app, origins=[os.environ.get("CORS_ORIGIN", "http://localhost:5173")])
 
 UPLOAD_FOLDER = "temp_images"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
