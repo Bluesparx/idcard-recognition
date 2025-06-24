@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from utils.ocr import extract_dob_name
-from utils.face_matcher import DeepFaceMatchingService
+from utils.face_matcher import FaceMatcher
 from utils.age import is_adult
 from utils.feedback import evaluate_image_quality
 import cv2
@@ -16,7 +16,7 @@ CORS(app, origins=["http://localhost:5173"])
 UPLOAD_FOLDER = "temp_images"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-face_matcher = DeepFaceMatchingService()
+face_matcher = FaceMatcher()
 
 def upload_images():
     doc_img = request.files.get("document")
@@ -60,7 +60,8 @@ def verify():
 
     ocr_result = extract_dob_name(doc_path, languages=['en', 'hi'])
     dob = ocr_result.get("dob")
-    name = ocr_result.get("name")
+    name_en = ocr_result.get("name_en")
+    name_hi = ocr_result.get("name_hi")
     age = is_adult(dob) if dob else 0
 
     match_result = face_matcher.compare_faces(doc_path, selfie_path)
@@ -72,13 +73,24 @@ def verify():
     # print("age:", age)
     # print("match_result:", match_result)
 
+    if match_result.get("error"):
+        return jsonify({
+            "error": match_result["error"],
+            "reason": "Face missing in input"
+        }), 400
+    matched = match_result.get("match")
+    confidence = match_result.get("confidence")
 
     return jsonify({
-        "name": name,
+        "name": {
+            "english": name_en or "",
+            "hindi": name_hi or ""
+        },
         "dob": dob,
         "age": age,
         "is_adult": age >= 18,
-        "face_match": match_result
+        "face_match": matched,
+        "confidence": confidence
     })
 
 if __name__ == '__main__':
