@@ -53,46 +53,43 @@ def check_quality():
         "selfie_feedback": selfie_feedback
     })
 
-
 @app.route("/verify", methods=["POST"])
 def verify():
     doc_path, selfie_path, error_response, error_code = upload_images()
+    if error_response:
+        return error_response, error_code
 
-    ocr_result = extract_dob_name(doc_path, languages=['en', 'hi'])
+    ocr_result = extract_dob_name(doc_path)
     dob = ocr_result.get("dob")
-    name_en = ocr_result.get("name_en")
-    name_hi = ocr_result.get("name_hi")
-    age = is_adult(dob) if dob else 0
+    name = ocr_result.get("name")
 
     match_result = face_matcher.compare_faces(doc_path, selfie_path)
 
-    # for debug
-    # print("ocr_result:", ocr_result)
-    # print("dob:", dob)
-    # print("name:", name)
-    # print("age:", age)
-    # print("match_result:", match_result)
+    age = is_adult(dob) if dob else 0
 
     if match_result.get("error"):
         return jsonify({
             "error": match_result["error"],
             "reason": "Face missing in input"
         }), 400
-    matched = match_result.get("match")
+
+    face_match = "Face Verified" if match_result.get("match") else "Not Verified"
     confidence = match_result.get("confidence")
 
-    return jsonify({
-        "name": {
-            "english": name_en or "",
-            "hindi": name_hi or ""
-        },
+    # age_matched = "Age Verified" if (
+    #     predicted_age is not None and age is not None and abs(age - predicted_age) <= 3
+    # ) else "Not Verified"
+
+    result = {
+        "name": name,
         "dob": dob,
         "age": age,
         "is_adult": age >= 18,
-        "face_match": matched,
+        "face_match": face_match,
         "confidence": confidence
-    })
+    }
+    print(result)
+    return jsonify(result)
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True)

@@ -87,7 +87,7 @@ function Selfie() {
 
   return (
     <div className="selfie-component">
-      <h2>Face Verification</h2>
+      <h2>Face & Age Verification</h2>
       <div className="selfie-input">
       <Webcam
         audio={false}
@@ -95,7 +95,7 @@ function Selfie() {
         screenshotFormat="image/png"
         width={300}
         height={200}
-        style={{ marginBottom: 10 }}
+        style={{ marginBottom: 10 , transform: "scaleX(-1)"}}
       />
       <button onClick={captureSelfie}>Capture Selfie</button>
       {selfie && <p>Selfie captured</p>}
@@ -121,18 +121,16 @@ function Selfie() {
             <p className="error-msg">{result.message}</p>
           ) : (
             <div className="results">
-              <p>
-                {result.name.english && (
-                    <span><strong>Name (EN): </strong>{result.name.english}</span>)}
-              </p>
-              <p>
-                {result.name.hindi && (
-                    <span><strong>नाम (HI): </strong>{result.name.hindi}</span>)}        
-              </p>
+              <div className="face">
+              <p>Face Similarity: {result.confidence}%</p>
+              <p>Face verification: {result.face_match}</p>
               <p>DOB: {result.dob}</p>
               <p>Age: {result.age}</p>
-              <p>Match: {result.face_match}</p>
-              <p>Similarity Score: {result.confidence}%</p>
+              </div>
+              {/* <div className="age">
+              <p>Age Verification: {result.age_matched}</p>
+              <p>Predicted Age:{result.predicted_age}</p>
+              </div> */}
             </div>
           )}
         </div>

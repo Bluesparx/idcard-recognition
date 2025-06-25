@@ -109,6 +109,11 @@ button:disabled {
     margin-top: 1rem;
 }
 
+.results{
+    justify-content: space-evenly;
+    display: flex;
+    flex-direction: row;
+}
 .status-indicator {
     display: inline-flex;
     align-items: center;
